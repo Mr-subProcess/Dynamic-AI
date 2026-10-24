@@ -1,0 +1,20 @@
+%set[PC]
+program quantum_gates;
+show_basis();
+DRNCQ = "left", qubitfonk();
+DRNCQ = "right", qubitfonk();
+DRNCQ = "nested_refs", [left, right];
+cxgate(left, right);
+hgate(left);
+cxgate(left, right);
+assert_normalized(left);
+assert(verify_entanglement(left, right), "CNOT did not create entanglement");
+assert(verify_entanglement(nested_refs[0], nested_refs[1]), "nested QRef aliases were not updated");
+rxgate(left, pi() / 7);
+rygate(right, pi() / 9);
+rzgate(left, pi() / 5);
+phasegate(left, pi() / 3);
+swapgate(left, right);
+czgate(left, right);
+assert_normalized(left);
+print("gate sequence complete; modular_s=" + modular_s);

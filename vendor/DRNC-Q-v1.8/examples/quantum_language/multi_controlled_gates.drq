@@ -1,0 +1,25 @@
+%set[PC]
+program multi_controlled_gates;
+
+DRNCQ = "q", qregfonk(3);
+xgate(q[0]);
+xgate(q[1]);
+xgate(q[2]);
+
+# Generalized Toffoli: the target flips only when both controls are HAYIR/|1>.
+mcxgate([q[0], q[1]], q[2]);
+assert(abs(probability(q[2], "EVET") - 1.0) < 1e-8, "MCX should flip the target to EVET");
+mcxgate([q[0], q[1]], q[2]);
+assert(abs(probability(q[2], "HAYIR") - 1.0) < 1e-8, "MCX is its own inverse");
+
+# Multi-controlled phase applies only to the all-HAYIR sector. Two pi phases cancel.
+mcphasegate([q[0], q[1]], q[2], pi());
+mcphasegate([q[0], q[1]], q[2], pi());
+assert(abs(norm(q[0]) - 1.0) < 1e-8);
+assert(abs(statevector(q[0])[7][0] - 1.0) < 1e-8);
+
+# mczgate is the pi-phase specialization. Applying it twice restores the state.
+mczgate([q[0], q[1]], q[2]);
+mczgate([q[0], q[1]], q[2]);
+assert(abs(statevector(q[0])[7][0] - 1.0) < 1e-8);
+print("multi-controlled X/phase gates PASS");

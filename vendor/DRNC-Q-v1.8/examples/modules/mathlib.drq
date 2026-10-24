@@ -1,0 +1,4 @@
+%set[PC]
+program mathlib;
+fn square(x) { return x * x; }
+fn cube(x) { return x * x * x; }

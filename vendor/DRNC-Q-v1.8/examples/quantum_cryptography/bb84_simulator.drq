@@ -1,0 +1,46 @@
+%set[PC]
+program bb84_qkd_simulator;
+# Educational BB84 prepare-and-measure simulation; this is NOT production cryptography.
+# Pseudorandomness is deterministic after seed(), and no adversary/noisy channel is modeled.
+seed(20261022);
+DRNCQ = "alice_bits", [];
+DRNCQ = "alice_bases", [];
+DRNCQ = "bob_bases", [];
+DRNCQ = "bob_bits", [];
+DRNCQ = "alice_key", [];
+DRNCQ = "bob_key", [];
+DRNCQ = "q", qubitfonk();
+DRNCQ = "round_index", 0;
+for (round_index = 0; round_index < 24; round_index = round_index + 1) {
+    DRNCQ = "a_bit", randint(2);
+    DRNCQ = "a_basis", randint(2);
+    DRNCQ = "b_basis", randint(2);
+    q = qubitfonk();
+    if (a_bit == 1) { xgate(q); }
+    if (a_basis == 1) { hgate(q); }
+    # Bob measures in the randomly chosen basis.
+    if (b_basis == 1) { hgate(q); }
+    DRNCQ = "observed", measure(q);
+    DRNCQ = "b_bit", 0;
+    if (observed == "HAYIR") { b_bit = 1; }
+    push(alice_bits, a_bit);
+    push(alice_bases, a_basis);
+    push(bob_bases, b_basis);
+    push(bob_bits, b_bit);
+    if (a_basis == b_basis) {
+        push(alice_key, a_bit);
+        push(bob_key, b_bit);
+    }
+}
+assert(len(alice_key) > 0, "basis sifting unexpectedly produced no key bits");
+assert(len(alice_key) == len(bob_key), "sifted keys must have the same length");
+DRNCQ = "errors", 0;
+for (round_index = 0; round_index < len(alice_key); round_index = round_index + 1) {
+    if (alice_key[round_index] != bob_key[round_index]) { errors = errors + 1; }
+}
+print("BB84 educational simulation complete");
+print("sifted key length=" + to_string(len(alice_key)));
+print("observed sifted bit mismatches=" + to_string(errors));
+print("Alice sifted key=" + to_string(alice_key));
+print("Bob sifted key=" + to_string(bob_key));
+assert(errors == 0, "ideal no-eavesdropper simulation should match on same-basis rounds");

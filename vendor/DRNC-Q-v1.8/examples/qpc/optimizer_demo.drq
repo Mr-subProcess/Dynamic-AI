@@ -1,0 +1,10 @@
+%set[QPC]
+program optimizer_demo;
+// Adjacent inverse pairs and a zero-angle rotation should be removed by qpc-optimize.
+DRNCQ = "q", qregfonk(1);
+hgate(q[0]);
+hgate(q[0]);
+xgate(q[0]);
+xgate(q[0]);
+rzgate(q[0], 0);
+xgate(q[0]);

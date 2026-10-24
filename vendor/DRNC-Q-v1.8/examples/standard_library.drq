@@ -1,0 +1,28 @@
+%set[PC]
+program standard_library;
+DRNCQ = "raw", "DRNC relational calculator";
+DRNCQ = "parts", split(raw, " ");
+DRNCQ = "up", upper(raw);
+DRNCQ = "down", lower("MIXED");
+DRNCQ = "piece", substr(raw, 0, 4);
+DRNCQ = "joined", join(parts, "_");
+DRNCQ = "numbers", [2, 4, 6];
+assert(len(parts) == 3, "split length incorrect");
+assert(contains(parts, "relational"), "contains missed word");
+assert(contains(numbers, 4), "contains missed list item");
+assert(piece == "DRNC", "substr incorrect");
+assert(up == "DRNC RELATIONAL CALCULATOR", "upper incorrect");
+assert(down == "mixed", "lower incorrect");
+assert(joined == "DRNC_relational_calculator", "join incorrect");
+push(numbers, 8);
+assert(pop(numbers) == 8, "pop/push incorrect");
+DRNCQ = "nothing", null;
+assert(type(nothing) == "null", "null type incorrect");
+DRNCQ = "circular", [];
+try {
+    push(circular, circular);
+} catch (err) {
+    assert(contains(err, "cycle"), "wrong cycle guard error");
+    print("cycle guard PASS");
+}
+print("standard library PASS");

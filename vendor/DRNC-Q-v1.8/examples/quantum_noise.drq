@@ -1,0 +1,55 @@
+%set[PC]
+program quantum_noise
+
+# Shot sampling is non-destructive: it samples the current pure state repeatedly.
+DRNCQ = "q", qregfonk(1);
+hgate(q[0]);
+DRNCQ = "bloch", bloch_vector(q[0]);
+assert(abs(bloch[0] - 1.0) < 1e-8, "|+> should have X expectation +1");
+assert(abs(bloch[1]) < 1e-8, "|+> should have Y expectation 0");
+assert(abs(bloch[2]) < 1e-8, "|+> should have Z expectation 0");
+DRNCQ = "s_before_sampling", modular_s;
+DRNCQ = "counts", sample_counts(q, 256);
+assert(modular_s == s_before_sampling, "read-only shot sampling must not advance modular flow");
+assert(abs(probability(q[0], "EVET") - 0.5) < 1e-8, "shot sampling must preserve the pre-measurement state");
+assert(len(counts) == 2, "one-qubit histogram should contain two outcomes");
+assert(counts[0] + counts[1] == 256, "shot histogram total mismatch");
+assert(abs(norm(q[0]) - 1.0) < 1e-8, "sampling must not collapse or mutate state");
+
+# Bell pair: reduced single-qubit von Neumann entropy should be one bit.
+DRNCQ = "pair", qregfonk(2);
+hgate(pair[0]);
+cxgate(pair[0], pair[1]);
+assert(abs(entanglement_entropy(pair[0]) - 1.0) < 1e-8, "Bell-pair reduced entropy should be one bit");
+assert(verify_entanglement(pair[0], pair[1]), "Bell pair should be entangled");
+
+# Boundary channels have deterministic outcomes at probabilities 0 and 1.
+DRNCQ = "bit", qubitfonk();
+xgate(bit);
+DRNCQ = "s_before_noise", modular_s;
+amplitude_damping(bit, 1.0);
+assert(abs(modular_s - s_before_noise - 1.0) < 1e-8, "noise channel must advance modular step once");
+assert(abs(probability(bit, "EVET") - 1.0) < 1e-8, "full amplitude damping should relax |1> to |0>");
+assert_normalized(bit);
+
+DRNCQ = "flip", qubitfonk();
+bit_flip_noise(flip, 1.0);
+assert(abs(probability(flip, "HAYIR") - 1.0) < 1e-8, "bit flip at p=1 should apply X");
+assert_normalized(flip);
+
+DRNCQ = "phase", qubitfonk();
+hgate(phase);
+phase_flip_noise(phase, 1.0);
+DRNCQ = "phase_bloch", bloch_vector(phase);
+assert(abs(phase_bloch[0] + 1.0) < 1e-8, "phase flip should map |+> to |->");
+assert(abs(phase_bloch[1]) < 1e-8, "phase-flipped |+> should have Y expectation 0");
+
+DRNCQ = "depol", superposfonk();
+depolarizing_noise(depol, 1.0);
+assert_normalized(depol);
+
+DRNCQ = "damp", superposfonk();
+phase_damping_noise(damp, 1.0);
+assert_normalized(damp);
+
+print("DRNC-Q shot sampling, Bloch diagnostics, entropy and stochastic noise channels PASS");

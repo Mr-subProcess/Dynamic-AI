@@ -1,0 +1,12 @@
+%set[QPC]
+program drnc_bell_feedforward;
+
+// DRNC-Q automatically creates a two-qubit relational Bell-type register.
+DRNCQ = "bell", donfonk();
+DRNCQ = "m0", measure(bell);
+
+// EVET/HAYIR is a logical label; QPC maps it to physical bit 0/1.
+if (m0 == "HAYIR") {
+    xgate(partner(bell));
+}
+DRNCQ = "m1", measure(partner(bell));

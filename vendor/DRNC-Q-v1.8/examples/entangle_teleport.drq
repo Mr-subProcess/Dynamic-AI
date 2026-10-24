@@ -1,0 +1,18 @@
+%set[PC]
+program entangle_teleport;
+
+DRNCQ = "source", superposfonk();
+DRNCQ = "target", qubitfonk();
+print("Before teleportation:");
+print(source);
+print(target);
+teleportfonk(source, target);
+print("After teleportation; target variable now references the teleported logical qubit:");
+print(target);
+assert_normalized(target);
+
+DRNCQ = "bell", donfonk();
+DRNCQ = "bob", partner(bell);
+print("Bell register:");
+print(bell);
+print(verify_entanglement(bell, bob));

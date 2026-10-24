@@ -1,0 +1,7 @@
+%set[QPC]
+program drnc_teleportation_feedforward;
+
+DRNCQ = "source", superposfonk(pi() / 5);
+DRNCQ = "destination", qubitfonk();
+teleportfonk(source, destination);
+DRNCQ = "final", measure(destination);

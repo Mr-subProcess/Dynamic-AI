@@ -1,0 +1,10 @@
+%set[PC]
+program teleport_phase_correctness;
+# Verify phase, not just computational-basis probability: H|-> = |HAYIR>.
+DRNCQ = "source", superposfonk(pi());
+DRNCQ = "destination", qubitfonk();
+teleportfonk(source, destination);
+hgate(destination);
+assert(abs(probability(destination, "HAYIR") - 1.0) < 0.00000001, "teleportation must preserve the input relative phase");
+assert(abs(norm(destination) - 1.0) < 0.00000001, "teleported state must remain normalized");
+print("teleport relative-phase correctness PASS");

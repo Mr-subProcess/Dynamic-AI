@@ -1,0 +1,10 @@
+%set[PC]
+program control_flow_short_circuit;
+DRNCQ = "n", 0;
+if (false && (1 / 0 > 0)) {
+    print("must not print");
+} else if (true || (1 / 0 > 0)) {
+    print("short-circuit and else-if PASS");
+} else {
+    print("unreachable");
+}

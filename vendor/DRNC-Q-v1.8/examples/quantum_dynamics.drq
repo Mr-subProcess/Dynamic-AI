@@ -1,0 +1,18 @@
+%set[PC]
+program quantum_dynamics;
+
+DRNCQ = "psi", superposfonk();
+DRNCQ = "branch", zeryafonk(psi);
+print("Source and branch registers:");
+print(psi);
+assert_normalized(psi);
+print("Branch sectors DAL+/DAL- are generated internally:");
+print(branch);
+print("DAL+ probability=" + probability(branch, "DAL+"));
+print("Branch entanglement check:");
+print(verify_entanglement(psi, branch));
+modular_status();
+moduleradim(0.5);
+print("After modular evolution:");
+modular_status();
+print("Probability of EVET sector=" + probability(psi, "EVET"));

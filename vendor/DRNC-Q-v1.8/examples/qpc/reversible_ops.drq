@@ -1,0 +1,15 @@
+%set[QPC]
+program drnc_reversible_ops;
+
+// User-defined unitary gate; DRNC-Q preserves it as a native gate definition.
+operation drncCNOT(girdi control, girdi target) {
+    cxgate(control, target);
+}
+
+DRNCQ = "q", qregfonk(3);
+hgate(q[0]);
+drncCNOT(q[0], q[1]);
+controlledgate("drncCNOT", q[2], [q[0], q[1]]);
+adjointgate("drncCNOT", q[0], q[1]);
+powergate("drncCNOT", [q[0], q[1]], 2);
+DRNCQ = "m", measure_all(q);

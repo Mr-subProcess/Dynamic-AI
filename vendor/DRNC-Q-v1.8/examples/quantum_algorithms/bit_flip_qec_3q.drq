@@ -1,0 +1,39 @@
+%set[PC]
+program bit_flip_qec_3q;
+
+# Three-qubit repetition code: encode |+>, inject one X error, measure two parity checks,
+# apply classical feed-forward correction, and verify the logical superposition is restored.
+DRNCQ = "q", qregfonk(5); # q[0..2] data, q[3..4] syndrome ancillas
+hgate(q[0]);
+cxgate(q[0], q[1]);
+cxgate(q[0], q[2]);
+
+# Inject one bit-flip error on data qubit 1.
+xgate(q[1]);
+
+# Syndrome s0 = q0 XOR q1; s1 = q1 XOR q2.
+cxgate(q[0], q[3]);
+cxgate(q[1], q[3]);
+cxgate(q[1], q[4]);
+cxgate(q[2], q[4]);
+DRNCQ = "s0", measure(q[3]);
+DRNCQ = "s1", measure(q[4]);
+
+# For this injected middle-qubit error, both syndrome bits are HAYIR.
+if (s0 == "HAYIR" && s1 == "HAYIR") {
+    xgate(q[1]);
+} else if (s0 == "HAYIR" && s1 == "EVET") {
+    xgate(q[0]);
+} else if (s0 == "EVET" && s1 == "HAYIR") {
+    xgate(q[2]);
+}
+
+DRNCQ = "p", probabilities(q[0]);
+DRNCQ = "i", 0;
+assert(abs(p[24] - 0.5) < 1e-8, "logical |000> with measured syndrome |11> probability must be 1/2");
+assert(abs(p[31] - 0.5) < 1e-8, "logical |111> with measured syndrome |11> probability must be 1/2");
+for (i = 0; i < len(p); i = i + 1) {
+    if (i != 24 && i != 31) { assert(abs(p[i]) < 1e-8, "unexpected basis population after QEC"); }
+}
+assert_normalized(q[0]);
+print("three-qubit bit-flip QEC and classical feed-forward PASS");

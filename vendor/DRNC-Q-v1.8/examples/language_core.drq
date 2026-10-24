@@ -1,0 +1,39 @@
+%set[PC]
+program language_core;
+fn factorial(n) {
+    if (n <= 1) { return 1; }
+    return n * factorial(n - 1);
+}
+fn sum_list(items) {
+    DRNCQ = "total_local", 0;
+    DRNCQ = "idx_local", 0;
+    while (idx_local < len(items)) {
+        total_local = total_local + items[idx_local];
+        idx_local = idx_local + 1;
+    }
+    return total_local;
+}
+DRNCQ = "fact", factorial(6);
+print("factorial=" + fact);
+DRNCQ = "items", [1, 2, 3];
+items[1] = 10;
+push(items, 4);
+print("items=" + items);
+print("sum=" + sum_list(items));
+DRNCQ = "i", 0;
+DRNCQ = "sum", 0;
+while (i < 10) {
+    i = i + 1;
+    if (i == 3) { continue; }
+    if (i == 8) { break; }
+    sum = sum + i;
+}
+print("loop_sum=" + sum);
+try {
+    DRNCQ = "bad", 1 / 0;
+} catch (err) {
+    print("caught=" + err);
+}
+DRNCQ = "q", superposfonk();
+assert_normalized(q);
+print("type=" + type(q));

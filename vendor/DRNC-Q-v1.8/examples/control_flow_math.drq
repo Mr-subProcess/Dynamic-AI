@@ -1,0 +1,32 @@
+%set[PC]
+program control_flow_math;
+
+DRNCQ = "x", 2;
+DRNCQ = "acc", 0;
+DRNCQ = "i", 0;
+DRNCQ = "n", 0;
+DRNCQ = "label", "DRNC-Q";
+DRNCQ = "power", 2 ^ 3;
+DRNCQ = "negative_power", -2 ^ 2;
+
+acc = x * 3 + 4 / 2;
+print(label + " arithmetic: " + acc);
+
+if (acc >= 7 && x != 0) {
+    print("if branch selected");
+} else {
+    print("else branch selected");
+}
+
+for (i = 0; i < 5; i = i + 1) {
+    acc = acc + i;
+}
+print("after for: " + acc);
+
+while (n < 3) {
+    n = n + 1;
+}
+print("after while: " + n);
+print("sqrt(9)=" + sqrt(9));
+print("2^3=" + power);
+print("-2^2=" + negative_power);

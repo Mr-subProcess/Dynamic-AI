@@ -1,0 +1,30 @@
+%set[PC]
+program user_functions;
+# Inputs default to girdi; output parameters are copied back on normal return.
+fonk topla(girdi a, girdi b) { return a + b; }
+fonk bolumVeKalan(girdi a, girdi b, cikti bolum, cikti kalan) {
+    bolum = floor(a / b);
+    kalan = a % b;
+    return [bolum, kalan];
+}
+fonk carpaniGuncelle(girdicikti x, girdi carpan) {
+    x = x * carpan;
+    return x;
+}
+fonk faktoriyel(girdi n) {
+    if (n <= 1) { return 1; }
+    return n * faktoriyel(n - 1);
+}
+DRNCQ = "a", 29;
+DRNCQ = "b", 5;
+DRNCQ = "q", 0;
+DRNCQ = "r", 0;
+DRNCQ = "divmod", bolumVeKalan(a, b, q, r);
+DRNCQ = "number", 3;
+carpaniGuncelle(number, 4);
+assert(topla(2, 3) == 5);
+assert(q == 5 && r == 4);
+assert(number == 12);
+assert(faktoriyel(6) == 720);
+print("user-defined function inputs, outputs and recursion PASS");
+print("divmod=" + divmod + ", quotient=" + q + ", remainder=" + r);

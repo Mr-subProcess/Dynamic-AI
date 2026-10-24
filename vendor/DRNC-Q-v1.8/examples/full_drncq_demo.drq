@@ -1,0 +1,35 @@
+%set[PC]
+program full_drncq_demo;
+
+# One variable system: scalars, strings and quantum handles share the DRNCQ declaration form.
+DRNCQ = "iterations", 0;
+DRNCQ = "limit", 3;
+DRNCQ = "energy", 2.5;
+DRNCQ = "message", "DRNC-Q";
+
+# Quantum states and the relational Zerya branch are generated internally.
+DRNCQ = "source", superposfonk();
+DRNCQ = "branch", zeryafonk(source);
+DRNCQ = "destination", qubitfonk();
+
+energy = energy * 2 + sqrt(9);
+print(message + " computed energy=" + energy);
+
+for (iterations = 0; iterations < limit; iterations = iterations + 1) {
+    evrimfonk(source, 0.25);
+}
+
+if (verify_entanglement(source, branch)) {
+    print("DRNC relational branch is coherent with its source.");
+} else {
+    print("Branch coherence check failed.");
+}
+
+modular_status();
+teleportfonk(source, destination);
+print("Destination after logical teleportation:");
+print(destination);
+print("The transmitted qubit remains entangled with the rest of its joint register:");
+print(verify_entanglement(branch));
+assert_normalized(destination);
+modular_status();

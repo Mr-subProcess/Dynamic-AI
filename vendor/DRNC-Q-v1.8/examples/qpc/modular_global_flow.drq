@@ -1,0 +1,8 @@
+%set[QPC]
+program modular_global_flow;
+DRNCQ = "q", qregfonk(2);
+DRNCQ = "a", q[0];
+DRNCQ = "b", q[1];
+evrimfonk(a, 0.5);
+moduleradim(0.25);
+DRNCQ = "m", measure_all(q);

@@ -1,0 +1,60 @@
+%set[PC]
+program advanced_semantics;
+
+# operation/kuantumfonk are callable quantum-routine declarations.
+operation bell_prepare(girdi control, girdi target) {
+    hgate(control);
+    cxgate(control, target);
+}
+
+kuantumfonk phase_roundtrip(girdi q, girdi theta) {
+    phasegate(q, theta);
+    adjointgate("phasegate", q, theta);
+}
+
+DRNCQ = "bell", qregfonk(2);
+bell_prepare(bell[0], bell[1]);
+assert(verify_entanglement(bell[0], bell[1]), "custom operation must prepare Bell-type entanglement");
+assert(abs(entanglement_entropy(bell[0]) - 1.0) < 1e-8, "Bell single-qubit entropy must be 1 bit");
+
+# Complex entries are represented as [real, imag] pairs. density_matrix is
+# the pure-state outer product for the simulator's current trajectory.
+DRNCQ = "rho1", reduced_density(bell[0]);
+assert(abs(rho1[0][0][0] - 0.5) < 1e-8, "reduced rho00");
+assert(abs(rho1[1][1][0] - 0.5) < 1e-8, "reduced rho11");
+assert(abs(purity(bell[0]) - 0.5) < 1e-8, "Bell reduced purity");
+DRNCQ = "rho", density_matrix(bell[0]);
+assert(len(rho) == 4 && len(rho[0]) == 4, "global density matrix dimensions");
+assert(abs(rho[0][0][0] - 0.5) < 1e-8, "global density diagonal");
+DRNCQ = "amps", statevector(bell[0]);
+assert(len(amps) == 4 && abs(amps[0][0] - 1.0 / sqrt(2.0)) < 1e-8, "statevector API");
+
+# General controlled, adjoint and integer-power modifiers.
+DRNCQ = "work", qregfonk(2);
+xgate(work[0]);
+controlledgate("xgate", work[0], work[1]);
+assert(abs(probabilities(work[0])[3] - 1.0) < 1e-8, "controlled X");
+adjointgate("cxgate", work[0], work[1]);
+assert(abs(probabilities(work[0])[1] - 1.0) < 1e-8, "adjoint CX");
+powergate("xgate", work[1], 2);
+assert(abs(probabilities(work[0])[1] - 1.0) < 1e-8, "X squared is identity");
+phase_roundtrip(work[0], pi() / 3.0);
+assert(abs(norm(work[0]) - 1.0) < 1e-8, "gate modifiers preserve norm");
+
+# Expectation values, state fidelity and a basis-aware measurement.
+DRNCQ = "plus", superposfonk();
+assert(abs(expectation_pauli(plus, "X") - 1.0) < 1e-8, "|+> X expectation");
+assert(abs(expectation_pauli(plus, "Y")) < 1e-8, "|+> Y expectation");
+DRNCQ = "samePlus", superposfonk();
+assert(abs(fidelity(plus, samePlus) - 1.0) < 1e-8, "equal one-qubit states fidelity");
+DRNCQ = "yplus", superposfonk(pi() / 2.0);
+DRNCQ = "measurement", measure_basis(yplus, "Y");
+assert(measurement == "EVET", "|+y> should measure EVET in Y basis");
+assert(abs(expectation_pauli(yplus, "Y") - 1.0) < 1e-8, "Y-basis collapse postcondition");
+
+# A barrier is a simulator scheduling marker and is state-neutral.
+DRNCQ = "beforeBarrier", modular_s;
+barrier(work);
+assert(modular_s == beforeBarrier, "barrier must not advance modular flow");
+
+print("DRNC-Q v1.4 operation/modifier/state-analysis tests PASS");

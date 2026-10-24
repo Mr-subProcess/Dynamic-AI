@@ -1,0 +1,22 @@
+%set[PC]
+program grover_two_qubit;
+# Two-qubit Grover search. Oracle marks the internally generated HAYIR/HAYIR basis sector.
+# In the simulator, logical gate operations are ideal; spectral modular evolution is explicit.
+DRNCQ = "q", qregfonk(2);
+hgate(q[0]);
+hgate(q[1]);
+# Oracle: phase-flip the marked sector.
+czgate(q[0], q[1]);
+# Diffusion: H^2 X^2 CZ X^2 H^2.
+hgate(q[0]); hgate(q[1]);
+xgate(q[0]); xgate(q[1]);
+czgate(q[0], q[1]);
+xgate(q[0]); xgate(q[1]);
+hgate(q[0]); hgate(q[1]);
+DRNCQ = "p", probabilities(q[0]);
+assert(abs(p[0]) < 0.0000001, "unmarked sector EVET/EVET probability");
+assert(abs(p[1]) < 0.0000001, "unmarked sector EVET/HAYIR probability");
+assert(abs(p[2]) < 0.0000001, "unmarked sector HAYIR/EVET probability");
+assert(abs(p[3] - 1.0) < 0.0000001, "Grover should amplify marked sector");
+print("Grover 2-qubit algorithm PASS; probabilities=" + to_string(p));
+print(measure_all(q));

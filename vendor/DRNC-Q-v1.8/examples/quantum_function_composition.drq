@@ -1,0 +1,22 @@
+%set[PC]
+program quantum_function_composition;
+# User functions can return DRNC-Q quantum handles and feed other functions.
+fonk bellPair() { return donfonk(); }
+fonk bellOut(cikti q) { q = donfonk(); return norm(q); }
+fonk stateNorm(girdi q) { return norm(q); }
+fonk buildAndVerify(girdi q) {
+    assert(stateNorm(q) > 0.999999, "state should be normalized");
+    return verify_entanglement(q);
+}
+DRNCQ = "bell", bellPair();
+assert(stateNorm(bell) > 0.999999);
+assert(buildAndVerify(bell));
+assert(stateNorm(bellPair()) > 0.999999);
+assert(verify_entanglement(bellPair()));
+DRNCQ = "outBell", qubitfonk();
+assert(bellOut(outBell) > 0.999999);
+assert(verify_entanglement(outBell));
+DRNCQ = "superposition", superposfonk();
+DRNCQ = "bloch", bloch_vector(superposition);
+assert(abs(bloch[2]) < 0.0000001);
+print("user functions composed with DRNC-Q built-ins PASS");

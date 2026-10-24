@@ -1,0 +1,25 @@
+%set[PC]
+program deutsch_algorithm;
+fn run_deutsch(oracle_mode) {
+    DRNCQ = "q", qregfonk(2);
+    # Prepare |EVET,HAYIR>, then apply H to both qubits.
+    xgate(q[1]);
+    hgate(q[0]);
+    hgate(q[1]);
+    if (oracle_mode == "balanced") {
+        cxgate(q[0], q[1]);
+    } else if (oracle_mode == "constant_one") {
+        xgate(q[1]);
+    } else {
+        assert(oracle_mode == "constant_zero", "unsupported oracle mode");
+    }
+    hgate(q[0]);
+    return measure(q[0]);
+}
+DRNCQ = "constant_zero_result", run_deutsch("constant_zero");
+DRNCQ = "constant_one_result", run_deutsch("constant_one");
+DRNCQ = "balanced_result", run_deutsch("balanced");
+assert(constant_zero_result == "EVET", "Deutsch constant-zero oracle");
+assert(constant_one_result == "EVET", "Deutsch constant-one oracle");
+assert(balanced_result == "HAYIR", "Deutsch balanced oracle");
+print("Deutsch algorithm constant/balanced cases PASS");

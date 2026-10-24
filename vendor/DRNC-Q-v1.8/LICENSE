@@ -1,0 +1,56 @@
+DRNC-Q COMMERCIAL SOURCE-AVAILABLE LICENSE
+Version 1.8 — Effective date: 23 October 2026
+
+Copyright (c) 2026 Oğuz Kağan Sayın / DRNC Quantum Systems
+Location: Ankara, Türkiye
+Contact: sayink07hotmail.com@gmail.com
+
+IMPORTANT: THIS IS A PROPRIETARY COMMERCIAL LICENSE. THE SOFTWARE IS NOT FREE TO USE, INCLUDING THE DEMONSTRATION VERSION.
+
+1. SOURCE AVAILABILITY
+The source code may be made available for inspection. Viewing the source does not grant a right to execute, compile, deploy, modify, distribute, sublicense, sell, provide as a service, or otherwise use the software. Any use requires a paid written license from DRNC Quantum Systems.
+
+2. LICENSE REQUIRED
+No individual or organisation may execute, compile, deploy, modify, distribute, commercialise, or create derivative works from DRNC-Q unless and until an applicable written license has been agreed and the relevant fee has been paid. There is no free trial, free demo, non-commercial-use exception, or implied license.
+
+3. COMMERCIAL OPTIONS
+The following indicative license options are offered; the final scope, covered versions, permitted users, deployments, support and payment schedule must be confirmed in a signed written agreement:
+
+(a) Paid demonstration license: EUR 500. This is not free and is limited to the demonstration scope expressly listed in the signed agreement.
+
+(b) Full-scope software and prepared algorithms: EUR 10,000 per year. The exact software modules, prepared algorithms, example code, update rights and support terms must be specified in the signed agreement.
+
+(c) Unlimited license: EUR 50,000. “Unlimited” applies only to the user counts, deployment scope, duration, entities and rights expressly defined in the signed agreement; it does not automatically imply copyright transfer or unrestricted redistribution.
+
+All prices are stated in euros. Taxes, invoicing, payment timing and any additional services will be addressed in the commercial agreement.
+
+4. RESTRICTIONS
+Unless explicitly authorised in the signed license, you may not:
+- redistribute or publish the source code or compiled binaries;
+- sublicense, rent, lease, resell, host, or provide access to the software for third parties;
+- remove copyright, attribution, license or proprietary notices;
+- publish modified versions or derivative works;
+- use the software or its outputs as part of a paid product/service or internal corporate workflow;
+- claim that simulation-only results constitute a physical quantum-computing experiment or certified cryptographic system.
+
+5. OWNERSHIP
+The licensor retains all right, title and interest in DRNC-Q and its original source code, language design, compiler, runtime, bytecode format, documentation, examples and associated intellectual property, except for rights expressly granted in a signed license. No patent, trademark or other intellectual-property right is granted except as expressly stated in such agreement.
+
+6. NO WARRANTY
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE SOFTWARE IS PROVIDED “AS IS” WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, ACCURACY, SECURITY OR OPERATIONAL AVAILABILITY. The software includes a classical state-vector simulator; it is not itself physical quantum hardware and its demonstration algorithms are not certified cryptographic products.
+
+7. LIMITATION OF LIABILITY
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSOR SHALL NOT BE LIABLE FOR INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, PUNITIVE OR CONSEQUENTIAL DAMAGES, LOST PROFITS, LOST DATA, BUSINESS INTERRUPTION OR SECURITY INCIDENTS ARISING FROM USE OR INABILITY TO USE THE SOFTWARE. Any liability that cannot lawfully be excluded remains subject to applicable law and the signed commercial agreement.
+
+8. TERMINATION
+A license may be terminated for material breach in accordance with the signed agreement and applicable law. On termination, the licensee must cease the uses no longer authorised and follow the data/source-return or deletion obligations in the applicable agreement.
+
+9. GOVERNING TERMS AND CONTACT
+The parties should specify governing law, venue, dispute resolution, taxes and payment mechanics in the signed commercial agreement. For licensing, a full statement of work, prepared algorithm list, additional examples, technical evaluation, or a commercial quotation, contact:
+
+Oğuz Kağan Sayın
+DRNC Quantum Systems
+Ankara, Türkiye
+sayink07hotmail.com@gmail.com
+
+No email, download, public source access, or informal discussion by itself creates a paid or perpetual license. Only a duly agreed written license does.

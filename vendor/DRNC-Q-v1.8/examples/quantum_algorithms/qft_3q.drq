@@ -1,0 +1,20 @@
+%set[PC]
+program qft_three_qubit;
+# Three-qubit QFT building block over a three-qubit DRNC register.
+DRNCQ = "q", qregfonk(3);
+xgate(q[0]);  # Nontrivial input basis sector.
+hgate(q[0]);
+cphasegate(q[0], q[1], pi() / 2.0);
+cphasegate(q[0], q[2], pi() / 4.0);
+hgate(q[1]);
+cphasegate(q[1], q[2], pi() / 2.0);
+hgate(q[2]);
+swapgate(q[0], q[2]);
+assert(abs(norm(q[0]) - 1.0) < 0.00000001, "QFT circuit must preserve norm");
+DRNCQ = "p", probabilities(q[0]);
+DRNCQ = "idx", 0;
+for (idx = 0; idx < 8; idx = idx + 1) {
+    assert(abs(p[idx] - 0.125) < 0.00000001, "QFT basis input has uniform output probabilities");
+}
+print("QFT 3-qubit unitary block PASS");
+print(p);

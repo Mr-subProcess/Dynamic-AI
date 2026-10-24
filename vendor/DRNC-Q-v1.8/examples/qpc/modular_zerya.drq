@@ -1,0 +1,15 @@
+%set[QPC]
+program drnc_modular_zerya;
+
+DRNCQ = "psi", superposfonk(pi() / 3);
+DRNCQ = "branch", zeryafonk(psi);
+
+// Internal modular parameter is dimensionless; QPC lowers declared sector gaps to phases.
+evrimfonk(psi, 0.125);
+DRNCQ = "branch_measure", measure_basis(branch, "Z");
+if (branch_measure == "HAYIR") {
+    xgate(psi);
+} else {
+    zgate(psi);
+}
+DRNCQ = "results", measure_all(psi);

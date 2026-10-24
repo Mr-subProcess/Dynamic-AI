@@ -1,0 +1,12 @@
+%set[PC]
+program ghz_three_qubit;
+DRNCQ = "q", qregfonk(3);
+hgate(q[0]);
+cxgate(q[0], q[1]);
+cxgate(q[0], q[2]);
+assert(abs(norm(q[0]) - 1.0) < 0.00000001, "GHZ state norm");
+assert(abs(probabilities(q[0])[0] - 0.5) < 0.00000001, "GHZ EVET sector probability");
+assert(abs(probabilities(q[0])[7] - 0.5) < 0.00000001, "GHZ HAYIR sector probability");
+assert(verify_entanglement(q[0], q[2]), "GHZ qubits should be entangled");
+dump_state(q[0]);
+print("GHZ state PASS");

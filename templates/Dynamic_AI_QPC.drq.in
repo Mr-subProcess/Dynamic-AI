@@ -1,0 +1,81 @@
+%set[QPC]
+program Dynamic_AI_QPC;
+
+# Generated variational-style quantum circuit template.
+# @WS00@...@WO22@ are inserted from the latest PC learner checkpoint by scripts/compile_qpc.sh.
+# Each learned scalar is encoded as a rotation angle (radians). This is a hybrid mapping,
+# not an exact quantum implementation of classical matrix multiplication.
+
+operation matrixEdge(girdi theta, girdi source, girdi destination) {
+    rygate(source, theta);
+    cxgate(source, destination);
+    rzgate(destination, theta / 2);
+}
+
+operation zeryaBroadcast(girdi theta, girdi source, girdi branch, girdi destination) {
+    cphasegate(source, branch, theta);
+    cxgate(branch, destination);
+    phasegate(destination, theta / 2);
+}
+
+# Eight base nodes: three sensory, three recurrent/association, one output, one feedback.
+DRNCQ = "nodes", qregfonk(8);
+DRNCQ = "sensory0", nodes[0];
+DRNCQ = "sensory1", nodes[1];
+DRNCQ = "sensory2", nodes[2];
+DRNCQ = "memory0", nodes[3];
+DRNCQ = "memory1", nodes[4];
+DRNCQ = "memory2", nodes[5];
+DRNCQ = "output", nodes[6];
+DRNCQ = "feedback", nodes[7];
+
+# Parameters are learned by the PC matrix network and injected by the build script.
+rxgate(sensory0, @WS00@);
+rygate(sensory1, @WS11@);
+rzgate(sensory2, @WS22@);
+
+# DRNC constructors automatically create relational quantum sectors.
+donfonk(sensory0, sensory1);
+DRNCQ = "attention", superposfonk(pi() / 7);
+DRNCQ = "sensory_branch", zeryafonk(sensory2);
+DRNCQ = "memory_branch", zeryafonk(memory1);
+
+# Matrix-to-matrix connections: sensory -> memory -> branch -> output.
+matrixEdge(@WM00@, sensory0, memory0);
+matrixEdge(@WM11@, sensory1, memory1);
+matrixEdge(@WM22@, sensory2, memory2);
+matrixEdge(@WB00@, memory0, output);
+matrixEdge(@WB11@, memory1, output);
+matrixEdge(@WB22@, memory2, output);
+zeryaBroadcast(@WO00@, memory0, sensory_branch, output);
+zeryaBroadcast(@WO11@, memory1, memory_branch, output);
+
+# DRNC superposition/branching controls a reversible edge path.
+controlledgate("matrixEdge", attention, [sensory0, memory2], @WO22@);
+adjointgate("matrixEdge", @WM00@, sensory0, memory0);
+powergate("matrixEdge", [memory2, output], 2, @WB22@);
+
+# An additional internally generated relational pair ties the global feedback node.
+DRNCQ = "global_pair", donfonk();
+DRNCQ = "global_branch", zeryafonk(global_pair);
+cxgate(global_branch, feedback);
+cphasegate(global_branch, output, @WS00@);
+
+# Global dimensionless modular evolution; this does not claim SI-time calibration.
+evrimfonk(sensory0, 0.025);
+moduleradim(0.0125);
+
+# Measurements become classical data; classical feed-forward then changes the output.
+DRNCQ = "branch_measure", measure(sensory_branch);
+if (branch_measure == "HAYIR") {
+    xgate(output);
+} else {
+    zgate(output);
+}
+DRNCQ = "feedback_measure", measure(feedback);
+if (feedback_measure == "HAYIR") {
+    phasegate(output, @WO22@);
+}
+DRNCQ = "output_measure", measure(output);
+DRNCQ = "node_measurements", measure_all(nodes);
+DRNCQ = "global_measurements", measure_all(global_pair);

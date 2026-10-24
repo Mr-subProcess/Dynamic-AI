@@ -1,0 +1,14 @@
+%set[PC]
+program entangle_variables;
+
+DRNCQ = "left", qubitfonk();
+DRNCQ = "right", qubitfonk();
+print("Independent register types:");
+print(type(left));
+print(type(right));
+
+donfonk(left, right);
+print("After native DRNCQ entangling operation:");
+print(left);
+print(verify_entanglement(left, right));
+assert_normalized(left);

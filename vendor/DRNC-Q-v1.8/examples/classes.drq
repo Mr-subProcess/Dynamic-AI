@@ -1,0 +1,25 @@
+%set[PC]
+program classes;
+class Vector2 {
+    fn init(self, x, y) {
+        self.x = x;
+        self.y = y;
+    }
+    fn length(self) {
+        return sqrt(self.x * self.x + self.y * self.y);
+    }
+    fn scale(self, factor) {
+        self.x = self.x * factor;
+        self.y = self.y * factor;
+        return self;
+    }
+}
+DRNCQ = "v", Vector2(3, 4);
+print("type=" + type(v));
+print("length=" + v.length());
+v.scale(2);
+print("scaled_x=" + v.x);
+print("scaled_y=" + v.y);
+print("scaled_length=" + v.length());
+DRNCQ = "w", new Vector2(5, 12);
+print("new_length=" + w.length());
