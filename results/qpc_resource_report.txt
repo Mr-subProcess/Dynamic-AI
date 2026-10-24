@@ -1,0 +1,29 @@
+DRNC-Q QPC RESOURCE REPORT
+Source: build/Dynamic_AI_QPC.generated.drq
+IR: OpenQASM 3.0
+Logical qubits declared: 14
+Classical bits declared: 13
+Quantum-operation statements: 70
+Non-measurement operation statements: 57
+Measurement statements: 13
+Statements touching >=2 distinct qubits: 19
+Classical if-statements: 2
+Custom gate definitions: 2
+Source-ordered serialized depth estimate: 19
+QASM size: 2685 bytes
+Operation statement histogram:
+  adjoint-custom: 1
+  controlled-custom: 1
+  cp: 1
+  cx: 6
+  h: 3
+  matrixEdge: 8
+  measure: 13
+  p: 30
+  rx: 1
+  ry: 1
+  rz: 1
+  x: 1
+  z: 1
+  zeryaBroadcast: 2
+Note: this is a static IR estimate, not a hardware-native depth, duration, fidelity, or execution result.

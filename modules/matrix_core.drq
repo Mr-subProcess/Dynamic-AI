@@ -1,0 +1,229 @@
+# Shared Dynamic AI matrix, learning, serialization and checkpoint primitives.
+fonk squash(girdi x) {
+    return x / (1 + abs(x));
+}
+
+fonk squash_vec(girdi v) {
+    DRNCQ = "resultvec", [];
+    DRNCQ = "i", 0;
+    while (i < len(v)) {
+        push(resultvec, squash(v[i]));
+        i = i + 1;
+    }
+    return resultvec;
+}
+
+fonk squash_derivative(girdi activations) {
+    DRNCQ = "resultvec", [];
+    DRNCQ = "i", 0;
+    while (i < len(activations)) {
+        push(resultvec, (1 - abs(activations[i])) * (1 - abs(activations[i])));
+        i = i + 1;
+    }
+    return resultvec;
+}
+
+fonk dot(girdi row, girdi vector) {
+    DRNCQ = "i", 0;
+    DRNCQ = "acc", 0.0;
+    assert(len(row) == len(vector), "dot dimension mismatch");
+    while (i < len(row)) {
+        acc = acc + row[i] * vector[i];
+        i = i + 1;
+    }
+    return acc;
+}
+
+fonk matvec(girdi matrix, girdi vector) {
+    DRNCQ = "result", [];
+    DRNCQ = "r", 0;
+    while (r < len(matrix)) {
+        push(result, squash(dot(matrix[r], vector)));
+        r = r + 1;
+    }
+    return result;
+}
+
+fonk transpose_matvec(girdi matrix, girdi vector) {
+    DRNCQ = "result", [];
+    DRNCQ = "col", 0;
+    DRNCQ = "row", 0;
+    DRNCQ = "acc", 0.0;
+    assert(len(matrix) == len(vector), "transpose_matvec row mismatch");
+    if (len(matrix) == 0) { return result; }
+    while (col < len(matrix[0])) {
+        acc = 0.0;
+        row = 0;
+        while (row < len(matrix)) {
+            acc = acc + matrix[row][col] * vector[row];
+            row = row + 1;
+        }
+        push(result, acc);
+        col = col + 1;
+    }
+    return result;
+}
+
+fonk vec_add(girdi a, girdi b) {
+    DRNCQ = "resultvec", [];
+    DRNCQ = "i", 0;
+    assert(len(a) == len(b), "vec_add dimension mismatch");
+    while (i < len(a)) {
+        push(resultvec, a[i] + b[i]);
+        i = i + 1;
+    }
+    return resultvec;
+}
+
+fonk vec_sub(girdi a, girdi b) {
+    DRNCQ = "resultvec", [];
+    DRNCQ = "i", 0;
+    assert(len(a) == len(b), "vec_sub dimension mismatch");
+    while (i < len(a)) {
+        push(resultvec, a[i] - b[i]);
+        i = i + 1;
+    }
+    return resultvec;
+}
+
+fonk vec_scale(girdi v, girdi scale) {
+    DRNCQ = "resultvec", [];
+    DRNCQ = "i", 0;
+    while (i < len(v)) {
+        push(resultvec, v[i] * scale);
+        i = i + 1;
+    }
+    return resultvec;
+}
+
+fonk vec_hadamard(girdi a, girdi b) {
+    DRNCQ = "resultvec", [];
+    DRNCQ = "i", 0;
+    assert(len(a) == len(b), "vec_hadamard dimension mismatch");
+    while (i < len(a)) {
+        push(resultvec, a[i] * b[i]);
+        i = i + 1;
+    }
+    return resultvec;
+}
+
+fonk mse(girdi prediction, girdi target) {
+    DRNCQ = "total", 0.0;
+    DRNCQ = "i", 0;
+    assert(len(prediction) == len(target), "mse dimension mismatch");
+    while (i < len(prediction)) {
+        total = total + (prediction[i] - target[i]) * (prediction[i] - target[i]);
+        i = i + 1;
+    }
+    return total / len(prediction);
+}
+
+fonk adapt_matrix(girdicikti matrix, girdi pre, girdi post, girdi rate) {
+    DRNCQ = "row_index", 0;
+    DRNCQ = "col_index", 0;
+    DRNCQ = "row_values", [];
+    assert(len(matrix) == len(post), "matrix post dimension mismatch");
+    while (row_index < len(matrix)) {
+        row_values = matrix[row_index];
+        assert(len(row_values) == len(pre), "matrix pre dimension mismatch");
+        col_index = 0;
+        while (col_index < len(row_values)) {
+            DRNCQ = "candidate_weight", row_values[col_index] + rate * post[row_index] * pre[col_index];
+            if (candidate_weight > 0.95) { candidate_weight = 0.95; }
+            if (candidate_weight < -0.95) { candidate_weight = -0.95; }
+            row_values[col_index] = candidate_weight;
+            col_index = col_index + 1;
+        }
+        matrix[row_index] = row_values;
+        row_index = row_index + 1;
+    }
+    return matrix;
+}
+
+fonk matrix_to_csv(girdi matrix) {
+    DRNCQ = "items", [];
+    DRNCQ = "r", 0;
+    DRNCQ = "c", 0;
+    while (r < len(matrix)) {
+        c = 0;
+        while (c < len(matrix[r])) {
+            push(items, to_string(matrix[r][c]));
+            c = c + 1;
+        }
+        r = r + 1;
+    }
+    return join(items, ",");
+}
+
+fonk load_matrix(girdicikti matrix, girdi path) {
+    DRNCQ = "raw", read_file(path);
+    DRNCQ = "items", split(raw, ",");
+    DRNCQ = "idx", 0;
+    DRNCQ = "r", 0;
+    DRNCQ = "c", 0;
+    assert(len(items) == len(matrix) * len(matrix[0]), "checkpoint matrix shape mismatch: " + path);
+    while (r < len(matrix)) {
+        DRNCQ = "row", matrix[r];
+        c = 0;
+        while (c < len(row)) {
+            row[c] = to_number(items[idx]);
+            c = c + 1;
+            idx = idx + 1;
+        }
+        matrix[r] = row;
+        r = r + 1;
+    }
+    return matrix;
+}
+
+fonk save_checkpoint(girdi ws, girdi wm, girdi wb, girdi wo, girdi epoch, girdi final_loss) {
+    write_file("build/checkpoints/W_sensory.csv", matrix_to_csv(ws));
+    write_file("build/checkpoints/W_memory.csv", matrix_to_csv(wm));
+    write_file("build/checkpoints/W_branch.csv", matrix_to_csv(wb));
+    write_file("build/checkpoints/W_output.csv", matrix_to_csv(wo));
+    write_file("build/checkpoints/metadata.txt", "Dynamic AI checkpoint v2\nepoch=" + to_string(epoch) + "\nloss=" + to_string(final_loss) + "\nmodular_s=" + to_string(modular_s));
+    return true;
+}
+
+fonk load_checkpoint(girdicikti ws, girdicikti wm, girdicikti wb, girdicikti wo) {
+    load_matrix(ws, "build/checkpoints/W_sensory.csv");
+    load_matrix(wm, "build/checkpoints/W_memory.csv");
+    load_matrix(wb, "build/checkpoints/W_branch.csv");
+    load_matrix(wo, "build/checkpoints/W_output.csv");
+    return true;
+}
+
+fonk classify(girdi values) {
+    DRNCQ = "best", 0;
+    DRNCQ = "idx", 1;
+    while (idx < len(values)) {
+        if (values[idx] > values[best]) { best = idx; }
+        idx = idx + 1;
+    }
+    return best;
+}
+fonk softmax(girdi values) {
+    assert(len(values) > 0, "softmax requires a non-empty vector");
+    DRNCQ = "max_value", values[0];
+    DRNCQ = "i", 1;
+    while (i < len(values)) {
+        if (values[i] > max_value) { max_value = values[i]; }
+        i = i + 1;
+    }
+    DRNCQ = "exponentials", [];
+    DRNCQ = "total_exp", 0.0;
+    i = 0;
+    while (i < len(values)) {
+        DRNCQ = "e", exp(values[i] - max_value);
+        push(exponentials, e);
+        total_exp = total_exp + e;
+        i = i + 1;
+    }
+    DRNCQ = "resultvec", [];
+    i = 0;
+    while (i < len(exponentials)) {
+        push(resultvec, exponentials[i] / total_exp);
+        i = i + 1;
+    }
+    return resultvec;
+}

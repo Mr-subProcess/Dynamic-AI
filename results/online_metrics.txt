@@ -1,0 +1,3 @@
+feedback_rows=3
+mean_loss_before_update=0.215156942674
+learning_rate=0.015

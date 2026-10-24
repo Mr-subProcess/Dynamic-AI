@@ -1,0 +1,11 @@
+Dynamic AI online-feedback mode | checkpoint loaded | local labeled adaptation
+feedback=0 loss_before_update=0.197579775014 gain=0.748058245821
+feedback=1 loss_before_update=0.21335445535 gain=0.744173913116
+feedback=2 loss_before_update=0.234536597657 gain=0.738361033836
+Online adaptation complete; updated checkpoint saved. Mean pre-update feedback loss=0.215156942674
+DRNC modular flow ACTIVE
+s = 10.03 [dimensionless internal relational parameter]
+modular steps = 13
+R-sector energies = {1, sqrt(2)}; branch spectrum = {0, +sqrt(3), -sqrt(3)}
+Logical gates are ideal; explicit evrimfonk/moduleradim applies spectral phase evolution.
+No external clock is assumed. s is not calibrated to seconds.

@@ -1,0 +1,9 @@
+Dynamic AI v1.2 integration verification: PASS
+Compiler: DRNC-Q v1.8 Full Edition (DRNQB7 PC VM + QPC analysis/optimizer + OpenQASM 3 backend)
+Training loss: 0.171593327637 -> 0.144064322728
+Eval metrics: initial_train_mse=0.171593327637 final_train_mse=0.144064322728 eval_mse=0.207785340282 eval_class_match=1 epochs=35 last_epoch_online_mse=0.143549895406 learning_rate_final=0.09344256 
+PC: CSV training/validation, supervised matrix updates, checkpoint save/reload, inference and class outputs passed.
+Online mode: labelled feedback updated the checkpoint; output-matrix hash changed.
+QPC: learned PC diagonal weights injected into gate angles; OpenQASM 3 compile, optimizer, controlled/adjoint gates, measurement and feed-forward passed.
+Local mock-driver ABI test passed; it did not run a physical QPU.
+Physical QPU: NOT RUN; no calibrated hardware driver/control stack was configured.

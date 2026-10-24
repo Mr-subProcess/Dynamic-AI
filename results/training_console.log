@@ -1,0 +1,28 @@
+ENTANGLED; reduced-state purity=0.5
+ENTANGLED; reduced-state purity=0.5
+ENTANGLED; reduced-state purity=0.5
+Dynamic AI v1.2 | supervised recurrent matrix learner | DRNC Quantum Systems
+Topology: input -> sensory -> recurrent memory -> Zerya branch -> output
+Training objective: bounded 3-channel supervised regression; local online delta/Hebbian updates.
+Quantum relation layer: internally generated EVET/HAYIR sectors; no basis strings supplied by application.
+initial_train_mse=0.171593327637
+epoch=0 train_mse=0.17155704496 learning_rate=0.12 branch_gain=0.749132435235
+epoch=4 train_mse=0.170963323201 learning_rate=0.12 branch_gain=0.736748829563
+epoch=9 train_mse=0.16998937284 learning_rate=0.12 branch_gain=0.702726597435
+epoch=14 train_mse=0.168753103952 learning_rate=0.1104 branch_gain=0.662821768337
+epoch=19 train_mse=0.166709190533 learning_rate=0.1104 branch_gain=0.659327435134
+epoch=24 train_mse=0.162489368271 learning_rate=0.101568 branch_gain=0.736448505081
+epoch=29 train_mse=0.153758297457 learning_rate=0.101568 branch_gain=0.840051114154
+epoch=34 train_mse=0.143549895406 learning_rate=0.09344256 branch_gain=0.799462587995
+last_epoch_online_mse=0.143549895406
+final_train_mse=0.144064322728
+eval_mse=0.207785340282 eval_class_match=1
+training_loss_decreased=true
+Checkpoint saved: build/checkpoints/*.csv
+Training history saved: results/training_history.csv
+DRNC modular flow ACTIVE
+s = 641.15 [dimensionless internal relational parameter]
+modular steps = 1268
+R-sector energies = {1, sqrt(2)}; branch spectrum = {0, +sqrt(3), -sqrt(3)}
+Logical gates are ideal; explicit evrimfonk/moduleradim applies spectral phase evolution.
+No external clock is assumed. s is not calibrated to seconds.

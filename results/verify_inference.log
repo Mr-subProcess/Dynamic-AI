@@ -1,0 +1,6 @@
+PASS: /mnt/data/Dynamic_AI_DRNC_Quantum_Systems_v1.2_Full_Bundle/Dynamic_AI_Infer_PC.drq -> DRNQ-IR; 1141 instructions; no execution performed
+Dynamic AI inference | loaded checkpoint | recurrent DRNC matrix graph
+features=[0.85, 0.1, 0.05] prediction=[0.091988094801, -0.0509554682538, -0.0427886297438] scores=[0.364868424796, 0.316269040558, 0.318862534647] class=0 top_score=0.364868424796 (uncalibrated)
+features=[0.05, 0.85, 0.1] prediction=[-0.0657191079563, 0.0725069025449, 0.0158967829293] scores=[0.309284026941, 0.355130755229, 0.33558521783] class=1 top_score=0.355130755229 (uncalibrated)
+features=[0.1, 0.05, 0.85] prediction=[-0.0373583274003, 0.00779215237023, 0.0341905273201] scores=[0.320476263055, 0.335277548288, 0.344246188657] class=2 top_score=0.344246188657 (uncalibrated)
+Inference results saved: results/inference_latest.csv

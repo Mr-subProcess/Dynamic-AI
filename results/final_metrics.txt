@@ -1,0 +1,7 @@
+initial_train_mse=0.171593327637
+final_train_mse=0.144064322728
+eval_mse=0.207785340282
+eval_class_match=1
+epochs=35
+last_epoch_online_mse=0.143549895406
+learning_rate_final=0.09344256
