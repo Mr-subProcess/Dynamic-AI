@@ -1,0 +1,4 @@
+Dynamic AI checkpoint v2
+epoch=3
+loss=0.215156942674
+modular_s=10.03
