@@ -1,0 +1,209 @@
+%set[PC]
+program Dynamic_AI_PC;
+import "modules/matrix_core.drq";
+
+# Trainable matrices: every edge is explicit and inspectable.
+DRNCQ = "W_sensory", [[0.18, -0.08, 0.12], [0.05, 0.21, -0.11], [-0.14, 0.09, 0.19]];
+DRNCQ = "W_memory", [[0.12, 0.04, 0.02], [-0.03, 0.10, 0.05], [0.04, -0.02, 0.11]];
+DRNCQ = "W_branch", [[0.22, 0.04, -0.03], [0.03, 0.20, 0.06], [-0.05, 0.02, 0.23]];
+DRNCQ = "W_output", [[0.20, 0.03, -0.02], [-0.04, 0.19, 0.04], [0.02, -0.03, 0.21]];
+
+# Training data is editable without recompiling: one CSV row is x0,x1,x2,target0,target1,target2.
+DRNCQ = "dataset_text", read_file("data/training.csv");
+DRNCQ = "dataset_rows", split(dataset_text, "\n");
+DRNCQ = "train_x", [];
+DRNCQ = "train_y", [];
+DRNCQ = "dataset_row_index", 0;
+while (dataset_row_index < len(dataset_rows)) {
+    DRNCQ = "dataset_line", dataset_rows[dataset_row_index];
+    if (len(dataset_line) > 0) {
+        DRNCQ = "columns", split(dataset_line, ",");
+        assert(len(columns) == 6, "training.csv rows must have six numeric columns");
+        push(train_x, [to_number(columns[0]), to_number(columns[1]), to_number(columns[2])]);
+        push(train_y, [to_number(columns[3]), to_number(columns[4]), to_number(columns[5])]);
+    }
+    dataset_row_index = dataset_row_index + 1;
+}
+assert(len(train_x) >= 3, "training dataset needs at least three records");
+
+DRNCQ = "config_text", read_file("data/training_config.csv");
+DRNCQ = "config_lines", split(config_text, "\n");
+assert(len(config_lines) >= 1, "training_config.csv is empty");
+DRNCQ = "config", split(config_lines[0], ",");
+assert(len(config) == 5, "training_config.csv requires epochs,learning_rate,decay_interval,decay_factor,modular_rate");
+DRNCQ = "epoch", 0;
+DRNCQ = "epochs", to_number(config[0]);
+DRNCQ = "sample", 0;
+DRNCQ = "tick", 0;
+DRNCQ = "learning_rate", to_number(config[1]);
+DRNCQ = "decay_interval", to_number(config[2]);
+DRNCQ = "decay_factor", to_number(config[3]);
+DRNCQ = "modular_rate", to_number(config[4]);
+assert(epochs >= 1 && epochs <= 35, "epochs must be in 1..35 for the bundled VM budget");
+assert(learning_rate > 0 && learning_rate <= 0.2, "learning_rate must be in (0, 0.2]");
+assert(decay_interval >= 1 && decay_interval <= 35, "decay_interval must be in 1..35");
+assert(decay_factor > 0 && decay_factor <= 1, "decay_factor must be in (0, 1]");
+assert(modular_rate >= 0 && modular_rate <= 0.01, "modular_rate must be in [0, 0.01]");
+DRNCQ = "final_loss", 0.0;
+DRNCQ = "last_epoch_online_mse", 0.0;
+DRNCQ = "loss_before", 0.0;
+DRNCQ = "loss_sum", 0.0;
+DRNCQ = "hits", 0;
+DRNCQ = "total", 0;
+DRNCQ = "history", [];
+DRNCQ = "epoch_loss_rows", [];
+DRNCQ = "memory", [0.0, 0.0, 0.0];
+DRNCQ = "branch_gain", 0.75;
+DRNCQ = "memory_link", qubitfonk();
+DRNCQ = "sensory_link", qubitfonk();
+DRNCQ = "attention_link", superposfonk(pi() / 7);
+DRNCQ = "branch_link", zeryafonk(attention_link);
+DRNCQ = "modulator_state", superposfonk(pi() / 11);
+DRNCQ = "global_pair", donfonk();
+DRNCQ = "global_branch", zeryafonk(global_pair);
+
+donfonk(sensory_link, memory_link);
+assert(verify_entanglement(sensory_link, memory_link), "sensory/memory link should be entangled");
+assert(verify_entanglement(global_pair), "global DRNC pair should be entangled");
+assert(verify_entanglement(attention_link, branch_link), "attention branch should be entangled");
+print("Dynamic AI v1.2 | supervised recurrent matrix learner | DRNC Quantum Systems");
+print("Topology: input -> sensory -> recurrent memory -> Zerya branch -> output");
+print("Training objective: bounded 3-channel supervised regression; local online delta/Hebbian updates.");
+print("Quantum relation layer: internally generated EVET/HAYIR sectors; no basis strings supplied by application.");
+
+# Baseline metric: fixed branch gain, recurrent sequence and evaluation order.
+sample = 0;
+loss_sum = 0.0;
+memory = [0.0, 0.0, 0.0];
+branch_gain = 0.75;
+while (sample < len(train_x)) {
+    DRNCQ = "h0", squash_vec(vec_add(matvec(W_sensory, train_x[sample]), matvec(W_memory, memory)));
+    DRNCQ = "b0", vec_scale(matvec(W_branch, h0), branch_gain);
+    DRNCQ = "p0", matvec(W_output, b0);
+    loss_sum = loss_sum + mse(p0, train_y[sample]);
+    memory = h0;
+    sample = sample + 1;
+}
+loss_before = loss_sum / len(train_x);
+print("initial_train_mse=" + loss_before);
+
+# Epoch/sample loop with recurrent context, DRNC branch gain and online gradient-like updates.
+while (epoch < epochs) {
+    sample = 0;
+    loss_sum = 0.0;
+    memory = [0.0, 0.0, 0.0];
+    while (sample < len(train_x)) {
+        DRNCQ = "x", train_x[sample];
+        DRNCQ = "target", train_y[sample];
+        DRNCQ = "sensory_drive", matvec(W_sensory, x);
+        DRNCQ = "memory_drive", matvec(W_memory, memory);
+        DRNCQ = "hidden", squash_vec(vec_add(sensory_drive, memory_drive));
+        DRNCQ = "branch_raw", matvec(W_branch, hidden);
+
+        rygate(modulator_state, modular_rate * (epoch + 1));
+        rygate(attention_link, modular_rate * (epoch + 1) / 2);
+        DRNCQ = "p_evet", probability(modulator_state, "EVET");
+        DRNCQ = "p_hayir", probability(modulator_state, "HAYIR");
+        DRNCQ = "p_dal_plus", probability(branch_link, "DAL+");
+        DRNCQ = "p_dal_minus", probability(branch_link, "DAL-");
+        branch_gain = 0.75 + 0.10 * (p_evet - p_hayir) + 0.05 * (p_dal_plus - p_dal_minus);
+        DRNCQ = "branch", vec_scale(branch_raw, branch_gain);
+        DRNCQ = "prediction", matvec(W_output, branch);
+        DRNCQ = "error", vec_sub(target, prediction);
+        DRNCQ = "delta_out", vec_hadamard(error, squash_derivative(prediction));
+        DRNCQ = "delta_branch_linear", transpose_matvec(W_output, delta_out);
+        DRNCQ = "delta_branch", vec_scale(vec_hadamard(delta_branch_linear, squash_derivative(branch_raw)), branch_gain);
+        DRNCQ = "delta_hidden_linear", transpose_matvec(W_branch, delta_branch);
+        DRNCQ = "delta_hidden", vec_hadamard(delta_hidden_linear, squash_derivative(hidden));
+
+        loss_sum = loss_sum + mse(prediction, target);
+        adapt_matrix(W_output, branch, delta_out, learning_rate);
+        adapt_matrix(W_branch, hidden, delta_branch, learning_rate);
+        adapt_matrix(W_sensory, x, delta_hidden, learning_rate);
+        adapt_matrix(W_memory, memory, delta_hidden, learning_rate * 0.35);
+        memory = hidden;
+        evrimfonk(memory_link, 0.005);
+        evrimfonk(branch_link, 0.005);
+        sample = sample + 1;
+    }
+    final_loss = loss_sum / len(train_x);
+    push(history, final_loss);
+    push(epoch_loss_rows, to_string(epoch) + "," + to_string(final_loss) + "," + to_string(learning_rate));
+    if (epoch == 0 || ((epoch + 1) % 5) == 0) {
+        print("epoch=" + epoch + " train_mse=" + final_loss + " learning_rate=" + learning_rate + " branch_gain=" + branch_gain);
+    }
+    if (((epoch + 1) % decay_interval) == 0) {
+        learning_rate = learning_rate * decay_factor;
+    }
+    epoch = epoch + 1;
+}
+last_epoch_online_mse = final_loss;
+
+# Comparable final training metric: same fixed branch gain and recurrent evaluation sequence as baseline.
+sample = 0;
+loss_sum = 0.0;
+memory = [0.0, 0.0, 0.0];
+branch_gain = 0.75;
+while (sample < len(train_x)) {
+    DRNCQ = "final_hidden", squash_vec(vec_add(matvec(W_sensory, train_x[sample]), matvec(W_memory, memory)));
+    DRNCQ = "final_branch", vec_scale(matvec(W_branch, final_hidden), branch_gain);
+    DRNCQ = "final_prediction", matvec(W_output, final_branch);
+    loss_sum = loss_sum + mse(final_prediction, train_y[sample]);
+    memory = final_hidden;
+    sample = sample + 1;
+}
+final_loss = loss_sum / len(train_x);
+
+# Deterministic hold-out evaluation loaded from data/validation.csv with the same six-column schema.
+DRNCQ = "validation_text", read_file("data/validation.csv");
+DRNCQ = "validation_rows", split(validation_text, "\n");
+DRNCQ = "eval_x", [];
+DRNCQ = "eval_y", [];
+DRNCQ = "validation_index", 0;
+while (validation_index < len(validation_rows)) {
+    DRNCQ = "validation_line", validation_rows[validation_index];
+    if (len(validation_line) > 0) {
+        DRNCQ = "validation_cols", split(validation_line, ",");
+        assert(len(validation_cols) == 6, "validation.csv rows must have six numeric columns");
+        push(eval_x, [to_number(validation_cols[0]), to_number(validation_cols[1]), to_number(validation_cols[2])]);
+        push(eval_y, [to_number(validation_cols[3]), to_number(validation_cols[4]), to_number(validation_cols[5])]);
+    }
+    validation_index = validation_index + 1;
+}
+assert(len(eval_x) >= 1, "validation dataset requires at least one record");
+sample = 0;
+loss_sum = 0.0;
+hits = 0;
+DRNCQ = "validation_prediction_rows", [];
+memory = [0.0, 0.0, 0.0];
+while (sample < len(eval_x)) {
+    DRNCQ = "eval_hidden", squash_vec(vec_add(matvec(W_sensory, eval_x[sample]), matvec(W_memory, memory)));
+    DRNCQ = "eval_branch", vec_scale(matvec(W_branch, eval_hidden), branch_gain);
+    DRNCQ = "eval_prediction", matvec(W_output, eval_branch);
+    loss_sum = loss_sum + mse(eval_prediction, eval_y[sample]);
+    DRNCQ = "eval_true_class", classify(eval_y[sample]);
+    DRNCQ = "eval_pred_class", classify(eval_prediction);
+    DRNCQ = "eval_scores", softmax(eval_prediction);
+    if (eval_pred_class == eval_true_class) { hits = hits + 1; }
+    push(validation_prediction_rows, to_string(sample) + "," + to_string(eval_true_class) + "," + to_string(eval_pred_class) + "," + to_string(eval_prediction[0]) + "," + to_string(eval_prediction[1]) + "," + to_string(eval_prediction[2]) + "," + to_string(eval_scores[0]) + "," + to_string(eval_scores[1]) + "," + to_string(eval_scores[2]));
+    memory = eval_hidden;
+    sample = sample + 1;
+}
+DRNCQ = "eval_mse", loss_sum / len(eval_x);
+DRNCQ = "eval_accuracy", hits / len(eval_x);
+print("last_epoch_online_mse=" + last_epoch_online_mse);
+print("final_train_mse=" + final_loss);
+print("eval_mse=" + eval_mse + " eval_class_match=" + eval_accuracy);
+print("training_loss_decreased=" + (final_loss < loss_before));
+assert(final_loss < loss_before, "training loss did not decrease; inspect data/training_config.csv and data/training.csv");
+
+# Save both weights and a plain-text loss trace; scripts pre-create build/checkpoints.
+save_checkpoint(W_sensory, W_memory, W_branch, W_output, epochs, final_loss);
+write_file("results/training_history.csv", "epoch,train_mse,learning_rate\n" + join(epoch_loss_rows, "\n") + "\n");
+write_file("results/final_metrics.txt", "initial_train_mse=" + to_string(loss_before) + "\nfinal_train_mse=" + to_string(final_loss) + "\neval_mse=" + to_string(eval_mse) + "\neval_class_match=" + to_string(eval_accuracy) + "\nepochs=" + to_string(epochs) + "\nlast_epoch_online_mse=" + to_string(last_epoch_online_mse) + "\nlearning_rate_final=" + to_string(learning_rate) + "\n");
+write_file("results/validation_predictions.csv", "row,true_class,predicted_class,pred0,pred1,pred2,score0,score1,score2\n" + join(validation_prediction_rows, "\n") + "\n");
+assert(file_exists("build/checkpoints/W_sensory.csv"), "checkpoint not saved");
+assert(file_exists("results/training_history.csv"), "training history not saved");
+print("Checkpoint saved: build/checkpoints/*.csv");
+print("Training history saved: results/training_history.csv");
+modular_status();

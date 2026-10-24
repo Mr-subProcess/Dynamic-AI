@@ -1,0 +1,45 @@
+%set[PC]
+program Dynamic_AI_Infer_PC;
+import "modules/matrix_core.drq";
+
+DRNCQ = "W_sensory", [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+DRNCQ = "W_memory", [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+DRNCQ = "W_branch", [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+DRNCQ = "W_output", [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]];
+assert(file_exists("build/checkpoints/W_sensory.csv"), "checkpoint missing; run scripts/train_pc.sh first");
+load_checkpoint(W_sensory, W_memory, W_branch, W_output);
+
+DRNCQ = "input_text", read_file("data/inference.csv");
+DRNCQ = "input_rows", split(input_text, "\n");
+DRNCQ = "row_index", 0;
+DRNCQ = "memory", [0.0, 0.0, 0.0];
+DRNCQ = "gain", 0.78;
+DRNCQ = "report_rows", [];
+print("Dynamic AI inference | loaded checkpoint | recurrent DRNC matrix graph");
+while (row_index < len(input_rows)) {
+    DRNCQ = "line", input_rows[row_index];
+    if (len(line) > 0) {
+        DRNCQ = "cols", split(line, ",");
+        assert(len(cols) == 3, "inference.csv rows must have three features");
+        DRNCQ = "features", [to_number(cols[0]), to_number(cols[1]), to_number(cols[2])];
+        DRNCQ = "sensory", matvec(W_sensory, features);
+        DRNCQ = "memory_drive", matvec(W_memory, memory);
+        DRNCQ = "hidden", squash_vec(vec_add(sensory, memory_drive));
+        DRNCQ = "branch", vec_scale(matvec(W_branch, hidden), gain);
+        DRNCQ = "prediction", matvec(W_output, branch);
+        DRNCQ = "class_id", classify(prediction);
+        DRNCQ = "class_scores", softmax(prediction);
+        DRNCQ = "top_score", class_scores[0];
+        DRNCQ = "score_index", 1;
+        while (score_index < len(class_scores)) {
+            if (class_scores[score_index] > top_score) { top_score = class_scores[score_index]; }
+            score_index = score_index + 1;
+        }
+        push(report_rows, to_string(row_index) + "," + to_string(prediction[0]) + "," + to_string(prediction[1]) + "," + to_string(prediction[2]) + "," + to_string(class_id) + "," + to_string(class_scores[0]) + "," + to_string(class_scores[1]) + "," + to_string(class_scores[2]));
+        print("features=" + features + " prediction=" + prediction + " scores=" + class_scores + " class=" + class_id + " top_score=" + top_score + " (uncalibrated)");
+        memory = hidden;
+    }
+    row_index = row_index + 1;
+}
+write_file("results/inference_latest.csv", "row,pred0,pred1,pred2,class_id,score0,score1,score2\n" + join(report_rows, "\n") + "\n");
+print("Inference results saved: results/inference_latest.csv");
